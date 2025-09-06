@@ -1,0 +1,12 @@
+streamlit
+pandas
+numpy
+plotly
+folium
+streamlit-folium
+streamlit-authenticator
+streamlit-option-menu
+PyYAML
+qrcode
+Pillow
+scikit-learn
