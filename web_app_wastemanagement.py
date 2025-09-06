@@ -14,7 +14,6 @@ import base64
 from PIL import Image
 import folium
 from streamlit_folium import folium_static
-import streamlit_authenticator as stauth
 from streamlit_option_menu import option_menu
 import yaml
 import json
@@ -616,7 +615,16 @@ def show_register():
     col3, col4 = st.columns(2)
     
     with col3:
-        segregation_rate = waste_data['segregated'].apply(lambda x: int.from_bytes(x, 'little') if isinstance(x, bytes) else int(x)).mean() * 100
+        # Convert segregated values to int, handling different data types
+        def convert_segregated(x):
+            if isinstance(x, bytes):
+                return int.from_bytes(x, 'little')
+            elif isinstance(x, (int, float)):
+                return int(x)
+            else:
+                return 0
+        
+        segregation_rate = waste_data['segregated'].apply(convert_segregated).mean() * 100
         fig4 = go.Figure(go.Indicator(
             mode="gauge+number+delta",
             value=segregation_rate,
@@ -705,16 +713,17 @@ def show_schedule_collection():
         st.markdown("- **Clean containers** before disposal")
         st.markdown("- **Schedule in advance** for better service")
         st.markdown("- **Check collection guidelines** for your area")
-        
-        # Move this OUTSIDE the form!
-        if st.button("📍 Show My Location"):
-            m = folium.Map(location=[28.6139, 77.2090], zoom_start=12)
-            folium.Marker(
-                [28.6139, 77.2090],
-                popup="Your Collection Point",
-                icon=folium.Icon(color='green', icon='home')
-            ).add_to(m)
-            folium_static(m, width=300, height=200)
+    
+    # Show location map outside of the columns and form
+    st.markdown("### 📍 Your Location")
+    if st.button("Show My Location on Map"):
+        m = folium.Map(location=[28.6139, 77.2090], zoom_start=12)
+        folium.Marker(
+            [28.6139, 77.2090],
+            popup="Your Collection Point",
+            icon=folium.Icon(color='green', icon='home')
+        ).add_to(m)
+        folium_static(m, width=700, height=400)
 
 # ===================== TRACK WASTE =====================
 def show_track_waste():
@@ -1194,7 +1203,17 @@ def show_reports():
             st.metric("Total Weight", f"{total_weight:.2f} kg", "⚖️")
         
         with col3:
-            segregation_rate = (waste_data['segregated'].sum() / len(waste_data)) * 100
+            # Convert segregated values properly
+            def convert_segregated(x):
+                if isinstance(x, bytes):
+                    return int.from_bytes(x, 'little')
+                elif isinstance(x, (int, float)):
+                    return int(x)
+                else:
+                    return 0
+            
+            segregated_count = waste_data['segregated'].apply(convert_segregated).sum()
+            segregation_rate = (segregated_count / len(waste_data)) * 100 if len(waste_data) > 0 else 0
             st.metric("Segregation Rate", f"{segregation_rate:.1f}%", "♻️")
         
         with col4:
@@ -1225,7 +1244,19 @@ def show_reports():
         
         with tab2:
             # Ward-wise analysis
-            ward_analysis = waste_data.groupby('ward_number').agg({
+            # Convert segregated values properly before aggregation
+            def convert_segregated(x):
+                if isinstance(x, bytes):
+                    return int.from_bytes(x, 'little')
+                elif isinstance(x, (int, float)):
+                    return int(x)
+                else:
+                    return 0
+            
+            waste_data_copy = waste_data.copy()
+            waste_data_copy['segregated'] = waste_data_copy['segregated'].apply(convert_segregated)
+            
+            ward_analysis = waste_data_copy.groupby('ward_number').agg({
                 'weight_kg': 'sum',
                 'segregated': 'mean',
                 'id': 'count'
@@ -1642,6 +1673,17 @@ def show_advanced_3d():
         # Create 4D visualization (3D + color)
         waste_data = get_waste_data()
         
+        # Convert segregated values properly
+        def convert_segregated(x):
+            if isinstance(x, bytes):
+                return int.from_bytes(x, 'little')
+            elif isinstance(x, (int, float)):
+                return int(x)
+            else:
+                return 0
+        
+        segregated_values = waste_data['segregated'].apply(convert_segregated)
+        
         fig = go.Figure(data=go.Scatter3d(
             x=waste_data['longitude'],
             y=waste_data['latitude'],
@@ -1649,7 +1691,7 @@ def show_advanced_3d():
             mode='markers',
             marker=dict(
                 size=8,
-                color=waste_data['segregated'].astype(int),
+                color=segregated_values,
                 colorscale=[[0, 'red'], [1, 'green']],
                 colorbar=dict(title="Segregated"),
                 opacity=0.7
@@ -1769,4 +1811,3 @@ def show_dashboard():
 # ===================== MAIN EXECUTION =====================
 if __name__ == "__main__":
     main()
-
