@@ -137,7 +137,7 @@ streamlit run web_app_wastemanagement.py
 ```
 
 The application will automatically:
-- Open in your default browser at `http://localhost:8501`
+- Open in your default browser at https://wastemanagement-pdxmbg8lubf6r6zlj33vdy.streamlit.app/
 - Create a SQLite database if it doesn't exist
 - Populate sample data for testing
 
@@ -546,6 +546,7 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 **Last Updated**: September 2025  
 **Status**: Active Development  
 **Made with ❤️ for a cleaner, greener future**
+
 
 
 
