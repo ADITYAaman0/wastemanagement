@@ -3,7 +3,7 @@
 A comprehensive web application for intelligent waste management, built with Python and Streamlit. This system facilitates efficient waste collection, tracking, and management while promoting environmental sustainability through gamification and community engagement.
 
 ![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)
-![Streamlit] https://wastemanagement-pdxmbg8lubf6r6zlj33vdy.streamlit.app/
+![Streamlit](https://img.shields.io/badge/Python-3.8+-blue.svg)
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
 
 ## 📋 Table of Contents
