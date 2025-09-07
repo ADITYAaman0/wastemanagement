@@ -1,0 +1,2115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoSmart - Advanced Waste Management System</title>
+    
+    <!-- Icons & Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Leaflet for Maps -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+    
+    <!-- Leaflet JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+    
+    <style>
+        :root {
+            --primary-green: #2E8B57;
+            --secondary-green: #32CD32;
+            --dark-green: #1a5c3a;
+            --light-green: #90EE90;
+            --accent-yellow: #FFD700;
+            --danger-red: #FF6B6B;
+            --info-blue: #4ECDC4;
+            --bg-dark: #0f1419;
+            --bg-light: #f0f9ff;
+            --text-dark: #1a1a1a;
+            --text-light: #ffffff;
+            --shadow-color: rgba(46, 139, 87, 0.15);
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-success: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            --gradient-eco: linear-gradient(135deg, #2E8B57 0%, #32CD32 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        .animated-bg {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            overflow: hidden;
+        }
+
+        .floating-leaf {
+            position: absolute;
+            color: rgba(46, 139, 87, 0.1);
+            animation: float 20s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            25% { transform: translateY(-20px) rotate(5deg); }
+            50% { transform: translateY(0) rotate(-5deg); }
+            75% { transform: translateY(20px) rotate(3deg); }
+        }
+
+        /* Navigation */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px var(--shadow-color);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: var(--gradient-eco);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            cursor: pointer;
+        }
+
+        .logo i {
+            font-size: 2rem;
+            color: var(--primary-green);
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-item {
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: var(--gradient-eco);
+            transition: left 0.3s ease;
+            z-index: -1;
+        }
+
+        .nav-item:hover::before {
+            left: 0;
+        }
+
+        .nav-item:hover {
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .nav-item.active {
+            background: var(--gradient-eco);
+            color: white;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            padding: 4rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .hero-content h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: var(--gradient-eco);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+            animation: slideInLeft 1s ease;
+        }
+
+        @keyframes slideInLeft {
+            from { transform: translateX(-50px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .hero-content p {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 2rem;
+            animation: slideInLeft 1s ease 0.2s both;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            animation: slideInLeft 1s ease 0.4s both;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: var(--gradient-eco);
+            color: white;
+            box-shadow: 0 4px 15px rgba(46, 139, 87, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(46, 139, 87, 0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--primary-green);
+            border: 2px solid var(--primary-green);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary-green);
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        .hero-image {
+            position: relative;
+            animation: float 4s ease-in-out infinite;
+        }
+
+        .hero-stats {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .stat-item {
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            background: var(--gradient-eco);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            margin-bottom: 2rem;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-eco);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        /* Grid Layout */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Feature Cards */
+        .feature-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: var(--gradient-eco);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 0;
+        }
+
+        .feature-card:hover::before {
+            opacity: 0.1;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(46, 139, 87, 0.2);
+        }
+
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--gradient-eco);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 2rem;
+            color: white;
+            position: relative;
+            z-index: 1;
+        }
+
+        .feature-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-dark);
+            position: relative;
+            z-index: 1;
+        }
+
+        .feature-description {
+            color: #666;
+            line-height: 1.6;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-green);
+            box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.1);
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            background: #e0e0e0;
+            border-radius: 50px;
+            height: 30px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--gradient-eco);
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            transition: width 1s ease;
+        }
+
+        /* Map Container */
+        .map-container {
+            height: 500px;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin: 2rem 0;
+        }
+
+        /* Charts Container */
+        .chart-container {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        /* Notification Badge */
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--danger-red);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        /* User Profile */
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.5rem 1rem;
+            background: var(--gradient-eco);
+            border-radius: 50px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .user-profile:hover {
+            transform: scale(1.05);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-green);
+            font-weight: 600;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+            transition: color 0.3s ease;
+        }
+
+        .modal-close:hover {
+            color: var(--danger-red);
+        }
+
+        /* Schedule Section */
+        .schedule-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+        }
+
+        .schedule-form {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .tips-card {
+            background: var(--gradient-eco);
+            border-radius: 20px;
+            padding: 2rem;
+            color: white;
+        }
+
+        .tips-card h3 {
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .tips-card ul {
+            list-style: none;
+        }
+
+        .tips-card li {
+            margin-bottom: 0.8rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .tips-card li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        /* Tracking Section */
+        .tracking-header {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .tracking-stat {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .tracking-stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            background: var(--gradient-eco);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .tracking-stat-label {
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Shop Section */
+        .shop-filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 0.5rem 1.5rem;
+            border: 2px solid var(--primary-green);
+            background: white;
+            color: var(--primary-green);
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .filter-btn.active,
+        .filter-btn:hover {
+            background: var(--primary-green);
+            color: white;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .product-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .product-image {
+            height: 200px;
+            background: var(--gradient-eco);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: white;
+        }
+
+        .product-info {
+            padding: 1.5rem;
+        }
+
+        .product-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .product-price {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .price-amount {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-green);
+        }
+
+        .points-required {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            color: var(--accent-yellow);
+            font-weight: 600;
+        }
+
+        /* Training Section */
+        .training-modules {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .module-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 2rem;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .module-card:hover {
+            transform: translateX(10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .module-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--gradient-eco);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .module-info h3 {
+            margin-bottom: 0.5rem;
+            color: var(--text-dark);
+        }
+
+        .module-meta {
+            display: flex;
+            gap: 1rem;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .difficulty-badge {
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .difficulty-beginner {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .difficulty-intermediate {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .difficulty-advanced {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--gradient-eco);
+            color: white;
+            padding: 3rem 2rem 1rem;
+            margin-top: 4rem;
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h3 {
+            margin-bottom: 1rem;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            opacity: 0.8;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .hero-content h1 {
+                font-size: 2.5rem;
+            }
+            
+            .hero-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .nav-menu {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .schedule-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .tracking-header {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* Loading Animation */
+        .loader {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--primary-green);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 2rem auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--gradient-eco);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: none;
+            animation: slideInRight 0.3s ease;
+            z-index: 3000;
+        }
+
+        .toast.show {
+            display: block;
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+
+        /* Login/Register Specific Styles */
+        .auth-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 80vh;
+            padding: 2rem;
+        }
+
+        .auth-card {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+        }
+
+        .auth-card h2 {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            background: var(--gradient-eco);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .auth-card .form-group {
+            text-align: left;
+        }
+
+        .auth-card .btn {
+            margin-top: 1.5rem;
+        }
+
+        .auth-card p {
+            margin-top: 1rem;
+            color: #666;
+        }
+
+        .auth-card a {
+            color: var(--primary-green);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .auth-card a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="animated-bg">
+        <i class="fas fa-leaf floating-leaf" style="font-size: 50px; top: 10%; left: 10%;"></i>
+        <i class="fas fa-recycle floating-leaf" style="font-size: 40px; top: 20%; right: 15%; animation-delay: 2s;"></i>
+        <i class="fas fa-leaf floating-leaf" style="font-size: 60px; bottom: 20%; left: 20%; animation-delay: 4s;"></i>
+        <i class="fas fa-seedling floating-leaf" style="font-size: 45px; bottom: 10%; right: 10%; animation-delay: 6s;"></i>
+    </div>
+
+    <!-- Login/Register Section (Initially active) -->
+    <div id="auth" class="section active">
+        <div class="auth-container">
+            <div class="auth-card" id="loginCard">
+                <h2>Login to EcoSmart</h2>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="loginUsername" class="form-label">Username</label>
+                        <input type="text" id="loginUsername" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword" class="form-label">Password</label>
+                        <input type="password" id="loginPassword" class="form-input" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
+                </form>
+                <p>Don't have an account? <a href="#" onclick="showRegisterCard()">Register here</a></p>
+                <p style="margin-top: 1.5rem; font-size: 0.9em; color: #888;">
+                    Demo Credentials:<br>
+                    Admin: `admin` / `admin123`<br>
+                    User: `user1` / `user1123`
+                </p>
+            </div>
+
+            <div class="auth-card" id="registerCard" style="display: none;">
+                <h2>Register for EcoSmart</h2>
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label for="registerUsername" class="form-label">Username</label>
+                        <input type="text" id="registerUsername" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerEmail" class="form-label">Email</label>
+                        <input type="email" id="registerEmail" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPassword" class="form-label">Password</label>
+                        <input type="password" id="registerPassword" class="form-input" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Register</button>
+                </form>
+                <p>Already have an account? <a href="#" onclick="showLoginCard()">Login here</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation (Hidden until logged in) -->
+    <nav class="navbar" id="mainNavbar" style="display: none;">
+        <div class="navbar-content">
+            <div class="logo" onclick="showSection('dashboard')">
+                <i class="fas fa-recycle"></i>
+                <span>EcoSmart</span>
+            </div>
+            <div class="nav-menu">
+                <div class="nav-item active" onclick="showSection('dashboard')">
+                    <i class="fas fa-home"></i> Dashboard
+                </div>
+                <div class="nav-item" onclick="showSection('schedule')">
+                    <i class="fas fa-calendar"></i> Schedule
+                </div>
+                <div class="nav-item" onclick="showSection('tracking')">
+                    <i class="fas fa-map-marked-alt"></i> Tracking
+                </div>
+                <div class="nav-item" onclick="showSection('shop')">
+                    <i class="fas fa-shopping-cart"></i> Shop
+                    <span class="notification-badge">3</span>
+                </div>
+                <div class="nav-item" onclick="showSection('training')">
+                    <i class="fas fa-graduation-cap"></i> Training
+                </div>
+                <div class="user-profile" onclick="showModal('profile')">
+                    <div class="user-avatar" id="userAvatar">JD</div>
+                    <span id="userName">John Doe</span>
+                    <i class="fas fa-star" style="color: #FFD700;"></i> <span id="userPointsDisplay">450</span>
+                </div>
+                <button class="btn btn-secondary" onclick="logout()">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard Section -->
+    <div id="dashboard" class="section" style="display: none;">
+        <!-- Hero Section -->
+        <div class="hero-section">
+            <div class="hero-content">
+                <h1>Smart Waste Management</h1>
+                <p>Join us in creating a cleaner, greener future through intelligent waste management solutions</p>
+                <div class="hero-buttons">
+                    <button class="btn btn-primary" onclick="showSection('schedule')">
+                        <i class="fas fa-calendar-plus"></i> Schedule Collection
+                    </button>
+                    <button class="btn btn-secondary" onclick="showModal('learn')">
+                        <i class="fas fa-info-circle"></i> Learn More
+                    </button>
+                </div>
+            </div>
+            <div class="hero-image">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 500'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%232E8B57;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%2332CD32;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='250' cy='250' r='200' fill='url(%23grad)' opacity='0.2'/%3E%3Cpath d='M250 150 L350 250 L250 350 L150 250 Z' fill='url(%23grad)'/%3E%3Ctext x='250' y='260' font-family='Arial' font-size='60' fill='white' text-anchor='middle'%3E♻️%3C/text%3E%3C/svg%3E" alt="Eco Smart" style="width: 100%; max-width: 400px;">
+            </div>
+        </div>
+
+        <!-- Stats Section -->
+        <div class="hero-stats">
+            <div class="stat-item" onclick="animateCount('totalWaste', 2456, 'kg')">
+                <div class="stat-number" id="totalWaste">2,456</div>
+                <div class="stat-label">Total Waste Collected (kg)</div>
+            </div>
+            <div class="stat-item" onclick="animateCount('activeUsers', 1234, '')">
+                <div class="stat-number" id="activeUsers">1,234</div>
+                <div class="stat-label">Active Users</div>
+            </div>
+            <div class="stat-item" onclick="animateCount('segregationRate', 87, '%')">
+                <div class="stat-number" id="segregationRate">87%</div>
+                <div class="stat-label">Segregation Rate</div>
+            </div>
+            <div class="stat-item" onclick="animateCount('co2Saved', 456, ' tons')">
+                <div class="stat-number" id="co2Saved">456</div>
+                <div class="stat-label">CO₂ Saved (tons)</div>
+            </div>
+        </div>
+
+        <!-- Main Dashboard Content -->
+        <div class="main-content">
+            <!-- Features Grid -->
+            <div class="grid-container">
+                <div class="feature-card" onclick="showSection('schedule')">
+                    <div class="feature-icon">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <h3 class="feature-title">Schedule Pickup</h3>
+                    <p class="feature-description">Book waste collection at your convenience with real-time slot availability</p>
+                </div>
+                
+                <div class="feature-card" onclick="showSection('tracking')">
+                    <div class="feature-icon">
+                        <i class="fas fa-truck"></i>
+                    </div>
+                    <h3 class="feature-title">Track Collection</h3>
+                    <p class="feature-description">Monitor your waste collection in real-time with GPS tracking</p>
+                </div>
+                
+                <div class="feature-card" onclick="showModal('analytics')">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3 class="feature-title">Analytics</h3>
+                    <p class="feature-description">View detailed insights about your waste generation patterns</p>
+                </div>
+                
+                <div class="feature-card" onclick="showSection('shop')">
+                    <div class="feature-icon">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    <h3 class="feature-title">Earn Rewards</h3>
+                    <p class="feature-description">Get points for proper segregation and redeem in our eco-shop</p>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="grid-container">
+                <div class="chart-container">
+                    <h3>Weekly Waste Collection</h3>
+                    <canvas id="weeklyChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>Waste Type Distribution</h3>
+                    <canvas id="wasteTypeChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Recent Activities -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Recent Activities</h3>
+                    <div class="card-icon">
+                        <i class="fas fa-history"></i>
+                    </div>
+                </div>
+                <div class="activities-list">
+                    <div style="padding: 1rem; border-left: 4px solid var(--primary-green); margin-bottom: 1rem; background: #f9f9f9; border-radius: 10px;">
+                        <strong>Collection Completed</strong> - Ward 5, 25kg
+                        <br><small style="color: #666;">2 hours ago</small>
+                    </div>
+                    <div style="padding: 1rem; border-left: 4px solid var(--info-blue); margin-bottom: 1rem; background: #f9f9f9; border-radius: 10px;">
+                        <strong>Points Earned</strong> - 50 points for segregation
+                        <br><small style="color: #666;">5 hours ago</small>
+                    </div>
+                    <div style="padding: 1rem; border-left: 4px solid var(--accent-yellow); margin-bottom: 1rem; background: #f9f9f9; border-radius: 10px;">
+                        <strong>Training Completed</strong> - Composting Basics
+                        <br><small style="color: #666;">Yesterday</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Schedule Section -->
+    <div id="schedule" class="section" style="display: none;">
+        <div class="main-content">
+            <h2 style="font-size: 2.5rem; margin-bottom: 2rem; background: var(--gradient-eco); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                Schedule Waste Collection
+            </h2>
+            
+            <div class="schedule-grid">
+                <div class="schedule-form">
+                    <form id="scheduleForm">
+                        <div class="form-group">
+                            <label class="form-label">Waste Type</label>
+                            <select class="form-input" id="wasteType">
+                                <option value="wet">Wet Waste (Biodegradable)</option>
+                                <option value="dry">Dry Waste (Recyclable)</option>
+                                <option value="hazardous">Hazardous Waste</option>
+                                <option value="ewaste">E-Waste</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Estimated Weight (kg)</label>
+                            <input type="number" class="form-input" id="weight" min="1" max="100" value="5">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Collection Date</label>
+                            <input type="date" class="form-input" id="collectionDate">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Time Slot</label>
+                            <select class="form-input" id="timeSlot">
+                                <option value="morning">Morning (6 AM - 10 AM)</option>
+                                <option value="afternoon">Afternoon (10 AM - 2 PM)</option>
+                                <option value="evening">Evening (2 PM - 6 PM)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">
+                                <input type="checkbox" id="segregated" checked> Properly Segregated
+                            </label>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">
+                            <i class="fas fa-check-circle"></i> Schedule Collection
+                        </button>
+                    </form>
+                </div>
+                
+                <div class="tips-card">
+                    <h3><i class="fas fa-lightbulb"></i> Pro Tips</h3>
+                    <ul>
+                        <li>Segregate waste to earn extra points</li>
+                        <li>Clean containers before disposal</li>
+                        <li>Schedule in advance for better slots</li>
+                        <li>Compress dry waste to save space</li>
+                        <li>Use biodegradable bags for wet waste</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Calendar View -->
+            <div class="card" style="margin-top: 2rem;">
+                <div class="card-header">
+                    <h3 class="card-title">Your Collection Calendar</h3>
+                    <div class="card-icon">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                </div>
+                <div id="calendar" style="padding: 1rem;">
+                    <!-- Simple calendar representation -->
+                    <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.5rem; text-align: center;">
+                        <div style="font-weight: 600;">Sun</div>
+                        <div style="font-weight: 600;">Mon</div>
+                        <div style="font-weight: 600;">Tue</div>
+                        <div style="font-weight: 600;">Wed</div>
+                        <div style="font-weight: 600;">Thu</div>
+                        <div style="font-weight: 600;">Fri</div>
+                        <div style="font-weight: 600;">Sat</div>
+                        <!-- Sample calendar days -->
+                        <div style="padding: 0.5rem; border-radius: 10px;" onclick="selectDate(this)">1</div>
+                        <div style="padding: 0.5rem; border-radius: 10px; background: var(--light-green);" onclick="selectDate(this)">2</div>
+                        <div style="padding: 0.5rem; border-radius: 10px;" onclick="selectDate(this)">3</div>
+                        <div style="padding: 0.5rem; border-radius: 10px;" onclick="selectDate(this)">4</div>
+                        <div style="padding: 0.5rem; border-radius: 10px; background: var(--light-green);" onclick="selectDate(this)">5</div>
+                        <div style="padding: 0.5rem; border-radius: 10px;" onclick="selectDate(this)">6</div>
+                        <div style="padding: 0.5rem; border-radius: 10px;" onclick="selectDate(this)">7</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tracking Section -->
+    <div id="tracking" class="section" style="display: none;">
+        <div class="main-content">
+            <h2 style="font-size: 2.5rem; margin-bottom: 2rem; background: var(--gradient-eco); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                Track Your Waste Collection
+            </h2>
+            
+            <div class="tracking-header">
+                <div class="tracking-stat">
+                    <div class="tracking-stat-value">156.7</div>
+                    <div class="tracking-stat-label">Total Weight (kg)</div>
+                </div>
+                <div class="tracking-stat">
+                    <div class="tracking-stat-value">23</div>
+                    <div class="tracking-stat-label">Collections</div>
+                </div>
+                <div class="tracking-stat">
+                    <div class="tracking-stat-value">92%</div>
+                    <div class="tracking-stat-label">Segregation Rate</div>
+                </div>
+                <div class="tracking-stat">
+                    <div class="tracking-stat-value">450</div>
+                    <div class="tracking-stat-label">Points Earned</div>
+                </div>
+            </div>
+            
+            <!-- Map Container -->
+            <div class="map-container" id="trackingMap"></div>
+            
+            <!-- Collection History -->
+            <div class="card" style="margin-top: 2rem;">
+                <div class="card-header">
+                    <h3 class="card-title">Collection History</h3>
+                    <div class="card-icon">
+                        <i class="fas fa-list"></i>
+                    </div>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f5f5f5;">
+                                <th style="padding: 1rem; text-align: left;">Date</th>
+                                <th style="padding: 1rem; text-align: left;">Type</th>
+                                <th style="padding: 1rem; text-align: left;">Weight</th>
+                                <th style="padding: 1rem; text-align: left;">Status</th>
+                                <th style="padding: 1rem; text-align: left;">Points</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom: 1px solid #eee;">
+                                <td style="padding: 1rem;">Dec 15, 2024</td>
+                                <td style="padding: 1rem;"><span style="background: #d4edda; padding: 0.3rem 0.8rem; border-radius: 20px;">Wet</span></td>
+                                <td style="padding: 1rem;">12.5 kg</td>
+                                <td style="padding: 1rem;"><span style="color: var(--primary-green);">✓ Collected</span></td>
+                                <td style="padding: 1rem;">+25</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #eee;">
+                                <td style="padding: 1rem;">Dec 12, 2024</td>
+                                <td style="padding: 1rem;"><span style="background: #cce5ff; padding: 0.3rem 0.8rem; border-radius: 20px;">Dry</span></td>
+                                <td style="padding: 1rem;">8.3 kg</td>
+                                <td style="padding: 1rem;"><span style="color: var(--primary-green);">✓ Collected</span></td>
+                                <td style="padding: 1rem;">+20</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #eee;">
+                                <td style="padding: 1rem;">Dec 10, 2024</td>
+                                <td style="padding: 1rem;"><span style="background: #fff3cd; padding: 0.3rem 0.8rem; border-radius: 20px;">E-Waste</span></td>
+                                <td style="padding: 1rem;">3.2 kg</td>
+                                <td style="padding: 1rem;"><span style="color: orange;">⏳ Scheduled</span></td>
+                                <td style="padding: 1rem;">-</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Shop Section -->
+    <div id="shop" class="section" style="display: none;">
+        <div class="main-content">
+            <h2 style="font-size: 2.5rem; margin-bottom: 2rem; background: var(--gradient-eco); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                Eco Shop - Redeem Your Points
+            </h2>
+            
+            <div style="background: var(--gradient-eco); color: white; padding: 1.5rem; border-radius: 20px; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h3>Your Balance</h3>
+                    <p style="font-size: 2rem; font-weight: 700;" id="shopPointsDisplay">450 Points</p>
+                </div>
+                <button class="btn" style="background: white; color: var(--primary-green);" onclick="showModal('transactions')">
+                    <i class="fas fa-history"></i> Transaction History
+                </button>
+            </div>
+            
+            <div class="shop-filters">
+                <button class="filter-btn active" onclick="filterProducts('all')">All Products</button>
+                <button class="filter-btn" onclick="filterProducts('equipment')">Equipment</button>
+                <button class="filter-btn" onclick="filterProducts('composting')">Composting</button>
+                <button class="filter-btn" onclick="filterProducts('garden')">Garden</button>
+                <button class="filter-btn" onclick="filterProducts('accessories')">Accessories</button>
+            </div>
+            
+            <div class="product-grid" id="productGrid">
+                <div class="product-card" data-category="equipment">
+                    <div class="product-image">
+                        <i class="fas fa-dumpster"></i>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-name">3-Bin Segregation Set</h3>
+                        <div class="product-price">
+                            <span class="price-amount">₹1,500</span>
+                            <span class="points-required">
+                                <i class="fas fa-star"></i> 300
+                            </span>
+                        </div>
+                        <button class="btn btn-primary" style="width: 100%;" onclick="redeemProduct('3-Bin Segregation Set', 300)">Redeem Now</button>
+                    </div>
+                </div>
+                
+                <div class="product-card" data-category="composting">
+                    <div class="product-image">
+                        <i class="fas fa-seedling"></i>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-name">Compost Kit</h3>
+                        <div class="product-price">
+                            <span class="price-amount">₹2,000</span>
+                            <span class="points-required">
+                                <i class="fas fa-star"></i> 400
+                            </span>
+                        </div>
+                        <button class="btn btn-primary" style="width: 100%;" onclick="redeemProduct('Compost Kit', 400)">Redeem Now</button>
+                    </div>
+                </div>
+                
+                <div class="product-card" data-category="accessories">
+                    <div class="product-image">
+                        <i class="fas fa-shopping-bag"></i>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-name">Eco Bags (Set of 5)</h3>
+                        <div class="product-price">
+                            <span class="price-amount">₹500</span>
+                            <span class="points-required">
+                                <i class="fas fa-star"></i> 100
+                            </span>
+                        </div>
+                        <button class="btn btn-primary" style="width: 100%;" onclick="redeemProduct('Eco Bags (Set of 5)', 100)">Redeem Now</button>
+                    </div>
+                </div>
+                
+                <div class="product-card" data-category="garden">
+                    <div class="product-image">
+                        <i class="fas fa-leaf"></i>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-name">Organic Fertilizer</h3>
+                        <div class="product-price">
+                            <span class="price-amount">₹800</span>
+                            <span class="points-required">
+                                <i class="fas fa-star"></i> 160
+                            </span>
+                        </div>
+                        <button class="btn btn-primary" style="width: 100%;" onclick="redeemProduct('Organic Fertilizer', 160)">Redeem Now</button>
+                    </div>
+                </div>
+                
+                <div class="product-card" data-category="equipment">
+                    <div class="product-image">
+                        <i class="fas fa-solar-panel"></i>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-name">Solar Waste Bin</h3>
+                        <div class="product-price">
+                            <span class="price-amount">₹5,000</span>
+                            <span class="points-required">
+                                <i class="fas fa-star"></i> 1000
+                            </span>
+                        </div>
+                        <button class="btn btn-primary" style="width: 100%;" onclick="redeemProduct('Solar Waste Bin', 1000)">Redeem Now</button>
+                    </div>
+                </div>
+                
+                <div class="product-card" data-category="accessories">
+                    <div class="product-image">
+                        <i class="fas fa-hand-paper"></i>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-name">Safety Gloves</h3>
+                        <div class="product-price">
+                            <span class="price-amount">₹300</span>
+                            <span class="points-required">
+                                <i class="fas fa-star"></i> 60
+                            </span>
+                        </div>
+                        <button class="btn btn-primary" style="width: 100%;" onclick="redeemProduct('Safety Gloves', 60)">Redeem Now</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Training Section -->
+    <div id="training" class="section" style="display: none;">
+        <div class="main-content">
+            <h2 style="font-size: 2.5rem; margin-bottom: 2rem; background: var(--gradient-eco); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                Environmental Training Modules
+            </h2>
+            
+            <div class="training-modules">
+                <div class="module-card">
+                    <div class="module-icon">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <div class="module-info">
+                        <h3>Waste Classification & Identification</h3>
+                        <p style="color: #666; margin: 0.5rem 0;">Learn to identify different types of waste and their proper disposal methods</p>
+                        <div class="module-meta">
+                            <span><i class="fas fa-clock"></i> 30 minutes</span>
+                            <span><i class="fas fa-star"></i> 50 points</span>
+                            <span class="difficulty-badge difficulty-beginner">Beginner</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="startModule('Waste Classification', 50)">Start Module</button>
+                </div>
+                
+                <div class="module-card">
+                    <div class="module-icon">
+                        <i class="fas fa-recycle"></i>
+                    </div>
+                    <div class="module-info">
+                        <h3>Source Segregation Best Practices</h3>
+                        <p style="color: #666; margin: 0.5rem 0;">Master the techniques of segregating waste at source for maximum efficiency</p>
+                        <div class="module-meta">
+                            <span><i class="fas fa-clock"></i> 45 minutes</span>
+                            <span><i class="fas fa-star"></i> 75 points</span>
+                            <span class="difficulty-badge difficulty-intermediate">Intermediate</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="startModule('Source Segregation', 75)">Start Module</button>
+                </div>
+                
+                <div class="module-card">
+                    <div class="module-icon">
+                        <i class="fas fa-seedling"></i>
+                    </div>
+                    <div class="module-info">
+                        <h3>Home Composting Workshop</h3>
+                        <p style="color: #666; margin: 0.5rem 0;">Convert your kitchen waste into valuable compost for your garden</p>
+                        <div class="module-meta">
+                            <span><i class="fas fa-clock"></i> 60 minutes</span>
+                            <span><i class="fas fa-star"></i> 100 points</span>
+                            <span class="difficulty-badge difficulty-advanced">Advanced</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="startModule('Home Composting', 100)">Start Module</button>
+                </div>
+                
+                <div class="module-card">
+                    <div class="module-icon">
+                        <i class="fas fa-industry"></i>
+                    </div>
+                    <div class="module-info">
+                        <h3>Plastic Waste Management</h3>
+                        <p style="color: #666; margin: 0.5rem 0;">Understanding plastic types, recycling codes, and creative reuse methods</p>
+                        <div class="module-meta">
+                            <span><i class="fas fa-clock"></i> 40 minutes</span>
+                            <span><i class="fas fa-star"></i> 80 points</span>
+                            <span class="difficulty-badge difficulty-intermediate">Intermediate</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="startModule('Plastic Waste Management', 80)">Start Module</button>
+                </div>
+            </div>
+            
+            <!-- Progress Overview -->
+            <div class="card" style="margin-top: 2rem;">
+                <div class="card-header">
+                    <h3 class="card-title">Your Learning Progress</h3>
+                    <div class="card-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-bar" style="width: 65%;">65% Complete</div>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1rem;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 2rem; font-weight: 700; color: var(--primary-green);">7</div>
+                        <div style="color: #666;">Modules Completed</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 2rem; font-weight: 700; color: var(--accent-yellow);">325</div>
+                        <div style="color: #666;">Points Earned</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 2rem; font-weight: 700; color: var(--info-blue);">3</div>
+                        <div style="color: #666;">Certificates</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">Modal Title</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div id="modalBody">
+                <!-- Dynamic content -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+        <i class="fas fa-check-circle"></i> <span id="toastMessage">Action completed successfully!</span>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer" id="mainFooter" style="display: none;">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>About EcoSmart</h3>
+                <p>Leading the way in smart waste management solutions for a sustainable future.</p>
+                <div style="margin-top: 1rem;">
+                    <i class="fab fa-facebook" style="font-size: 1.5rem; margin-right: 1rem; cursor: pointer;"></i>
+                    <i class="fab fa-twitter" style="font-size: 1.5rem; margin-right: 1rem; cursor: pointer;"></i>
+                    <i class="fab fa-instagram" style="font-size: 1.5rem; margin-right: 1rem; cursor: pointer;"></i>
+                    <i class="fab fa-linkedin" style="font-size: 1.5rem; cursor: pointer;"></i>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul class="footer-links">
+                    <li><a href="#dashboard" onclick="showSection('dashboard')">Dashboard</a></li>
+                    <li><a href="#schedule" onclick="showSection('schedule')">Schedule Collection</a></li>
+                    <li><a href="#tracking" onclick="showSection('tracking')">Track Waste</a></li>
+                    <li><a href="#shop" onclick="showSection('shop')">Eco Shop</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Resources</h3>
+                <ul class="footer-links">
+                    <li><a href="#" onclick="showModal('guidelines')">Waste Guidelines</a></li>
+                    <li><a href="#" onclick="showModal('faq')">FAQ</a></li>
+                    <li><a href="#" onclick="showModal('privacy')">Privacy Policy</a></li>
+                    <li><a href="#" onclick="showModal('terms')">Terms of Service</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Contact Us</h3>
+                <p><i class="fas fa-map-marker-alt"></i> 123 Eco-Friendly St, Green City</p>
+                <p><i class="fas fa-envelope"></i> info@ecosmart.com</p>
+                <p><i class="fas fa-phone"></i> +1 (123) 456-7890</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2024 EcoSmart. All rights reserved.
+        </div>
+    </footer>
+
+    <script>
+        let currentActiveSection = 'auth'; // Start with auth section
+        let loggedInUser = null; // Stores logged-in user data
+
+        // Function to compute SHA256 hash (simulating Python's hashlib.sha256)
+        // This is a simplified, synchronous version for demonstration.
+        // In a real app, use a robust crypto library and async hashing.
+        async function sha256(message) {
+            const msgBuffer = new TextEncoder().encode(message);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hexHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            return hexHash;
+        }
+
+        // Dummy user data for demonstration, with SHA256 hashed passwords
+        // Passwords are: admin123, user1123, user2123, etc.
+        const users = {
+            "admin": { password_hash: "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3", name: "System Administrator", points: 1000 },
+            "user1": { password_hash: "5994471abb01112afcc18159f6cc746f494bc75e6d4869c45422739745200560", name: "User 1", points: 250 },
+            "user2": { password_hash: "5994471abb01112afcc18159f6cc746f494bc75e6d4869c45422739745200561", name: "User 2", points: 300 },
+            "user3": { password_hash: "5994471abb01112afcc18159f6cc746f494bc75e6d4869c45422739745200562", name: "User 3", points: 150 },
+            "user4": { password_hash: "5994471abb01112afcc18159f6cc746f494bc75e6d4869c45422739745200563", name: "User 4", points: 400 },
+            "user5": { password_hash: "5994471abb01112afcc18159f6cc746f494bc75e6d4869c45422739745200564", name: "User 5", points: 100 },
+            "user6": { password_hash: "5994471abb01112afcc18159f6cc746f494bc75e6d4869c45422739745200565", name: "User 6", points: 500 },
+            "user7": { password_hash: "5994471abb01112afcc18159f6cc746f494bc75e6d4869c45422739745200566", name: "User 7", points: 200 },
+            "user8": { password_hash: "5994471abb01112afcc18159f6cc746f494bc75e6d4869c45422739745200567", name: "User 8", points: 350 },
+            "user9": { password_hash: "5994471abb01112afcc18159f6cc746f494bc75e6d4869c45422739745200568", name: "User 9", points: 420 },
+            "user10": { password_hash: "5994471abb01112afcc18159f6cc746f494bc75e6d4869c45422739745200569", name: "User 10", points: 280 }
+        };
+
+
+        // Function to show a specific section and update active nav item
+        function showSection(sectionId) {
+            // Hide all sections first
+            document.querySelectorAll('.section').forEach(section => {
+                section.style.display = 'none';
+                section.classList.remove('active');
+            });
+
+            // Show the requested section
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.style.display = 'block';
+                targetSection.classList.add('active');
+                currentActiveSection = sectionId;
+            }
+
+            // Update active class in navigation if navbar is visible
+            const navItems = document.querySelectorAll('.nav-item');
+            if (navItems.length > 0) {
+                navItems.forEach(item => {
+                    item.classList.remove('active');
+                });
+                const activeNavItem = document.querySelector(`.nav-item[onclick="showSection('${sectionId}')"]`);
+                if (activeNavItem) {
+                    activeNavItem.classList.add('active');
+                }
+            }
+
+            // Initialize map if it's the tracking section
+            if (sectionId === 'tracking') {
+                initTrackingMap();
+            }
+        }
+
+        // Authentication functions
+        function showLoginCard() {
+            document.getElementById('registerCard').style.display = 'none';
+            document.getElementById('loginCard').style.display = 'block';
+        }
+
+        function showRegisterCard() {
+            document.getElementById('loginCard').style.display = 'none';
+            document.getElementById('registerCard').style.display = 'block';
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            const hashedPassword = await sha256(password);
+
+            if (users[username] && users[username].password_hash === hashedPassword) {
+                loggedInUser = { username: username, name: users[username].name, points: users[username].points };
+                showToast(`Welcome back, ${loggedInUser.name}!`, 'success');
+                loginSuccess();
+            } else {
+                showToast('Invalid username or password.', 'error');
+            }
+        });
+
+        document.getElementById('registerForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const username = document.getElementById('registerUsername').value;
+            const email = document.getElementById('registerEmail').value; // Not used in dummy user object, but good to keep
+            const password = document.getElementById('registerPassword').value;
+            const hashedPassword = await sha256(password);
+
+            if (users[username]) {
+                showToast('Username already exists. Please choose another.', 'error');
+            } else {
+                users[username] = { password_hash: hashedPassword, name: username, points: 0 }; // New user starts with 0 points
+                showToast('Registration successful! Please log in.', 'success');
+                showLoginCard(); // Switch back to login form
+            }
+        });
+
+        function loginSuccess() {
+            document.getElementById('auth').style.display = 'none'; // Hide auth section
+            document.getElementById('mainNavbar').style.display = 'flex'; // Show navbar
+            document.getElementById('mainFooter').style.display = 'block'; // Show footer
+
+            // Update user info in navbar
+            document.getElementById('userAvatar').textContent = loggedInUser.name.substring(0, 2).toUpperCase();
+            document.getElementById('userName').textContent = loggedInUser.name;
+            updatePointsDisplay(); // Call this to set initial points
+
+            showSection('dashboard'); // Show dashboard
+            initCharts(); // Initialize charts after login
+        }
+
+        function logout() {
+            loggedInUser = null;
+            showToast('Logged out successfully.', 'success');
+            document.getElementById('mainNavbar').style.display = 'none'; // Hide navbar
+            document.getElementById('mainFooter').style.display = 'none'; // Hide footer
+            showSection('auth'); // Show login/register section
+            document.getElementById('loginUsername').value = ''; // Clear login form
+            document.getElementById('loginPassword').value = '';
+        }
+
+        // Function to show modal
+        function showModal(type) {
+            const modal = document.getElementById('modal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalBody = document.getElementById('modalBody');
+
+            modal.classList.add('show');
+
+            switch (type) {
+                case 'profile':
+                    modalTitle.textContent = 'User Profile';
+                    modalBody.innerHTML = `
+                        <p><strong>Name:</strong> ${loggedInUser.name}</p>
+                        <p><strong>Username:</strong> ${loggedInUser.username}</p>
+                        <p><strong>Points:</strong> ${loggedInUser.points} <i class="fas fa-star" style="color: #FFD700;"></i></p>
+                        <p><strong>Membership:</strong> Gold Tier</p>
+                        <button class="btn btn-primary" style="margin-top: 1rem;">Edit Profile</button>
+                    `;
+                    break;
+                case 'learn':
+                    modalTitle.textContent = 'Learn More About EcoSmart';
+                    modalBody.innerHTML = `
+                        <p>EcoSmart is an innovative platform designed to revolutionize waste management through smart technology and community engagement.</p>
+                        <p>Our mission is to make waste segregation and collection efficient, rewarding, and environmentally friendly.</p>
+                        <p>Join us in our journey towards a sustainable future!</p>
+                    `;
+                    break;
+                case 'analytics':
+                    modalTitle.textContent = 'Your Waste Analytics';
+                    modalBody.innerHTML = `
+                        <p>This section will provide detailed analytics on your waste generation, segregation habits, and environmental impact.</p>
+                        <p>Coming soon: Personalized reports and actionable insights!</p>
+                    `;
+                    break;
+                case 'transactions':
+                    modalTitle.textContent = 'Transaction History';
+                    modalBody.innerHTML = `
+                        <p><strong>Recent Transactions:</strong></p>
+                        <ul>
+                            <li>Dec 15, 2024: Earned 25 points (Wet Waste Collection)</li>
+                            <li>Dec 12, 2024: Earned 20 points (Dry Waste Collection)</li>
+                            <li>Dec 10, 2024: Redeemed 100 points (Eco Bags)</li>
+                            <li>Nov 30, 2024: Earned 50 points (Training: Composting Basics)</li>
+                        </ul>
+                    `;
+                    break;
+                case 'guidelines':
+                    modalTitle.textContent = 'Waste Segregation Guidelines';
+                    modalBody.innerHTML = `
+                        <p><strong>Wet Waste:</strong> Food scraps, fruit/vegetable peels, garden waste. Use green bins.</p>
+                        <p><strong>Dry Waste:</strong> Paper, plastic, metal, glass. Use blue bins.</p>
+                        <p><strong>Hazardous Waste:</strong> Batteries, chemicals, medical waste. Dispose at designated centers.</p>
+                        <p><strong>E-Waste:</strong> Electronics, wires, bulbs. Dispose at designated centers.</p>
+                    `;
+                    break;
+                case 'faq':
+                    modalTitle.textContent = 'Frequently Asked Questions';
+                    modalBody.innerHTML = `
+                        <p><strong>Q: How do I schedule a collection?</strong><br>A: Navigate to the 'Schedule' section and fill out the form.</p>
+                        <p><strong>Q: How do I earn points?</strong><br>A: Earn points by properly segregating waste, scheduling collections, and completing training modules.</p>
+                        <p><strong>Q: What if my collection is missed?</strong><br>A: Please contact support through the 'Complaints' section (if available) or our contact details.</p>
+                    `;
+                    break;
+                case 'privacy':
+                    modalTitle.textContent = 'Privacy Policy';
+                    modalBody.innerHTML = `
+                        <p>Your privacy is important to us. This policy explains how we collect, use, and protect your personal data.</p>
+                        <p>We only collect data necessary for providing our services and improving your experience.</p>
+                    `;
+                    break;
+                case 'terms':
+                    modalTitle.textContent = 'Terms of Service';
+                    modalBody.innerHTML = `
+                        <p>By using EcoSmart, you agree to our terms and conditions. These terms govern your use of the platform and its services.</p>
+                        <p>Please read them carefully.</p>
+                    `;
+                    break;
+                default:
+                    modalTitle.textContent = 'Information';
+                    modalBody.innerHTML = '<p>No specific information available.</p>';
+            }
+        }
+
+        // Function to close modal
+        function closeModal() {
+            document.getElementById('modal').classList.remove('show');
+        }
+
+        // Function to animate count for stats
+        function animateCount(id, target, suffix) {
+            const element = document.getElementById(id);
+            let current = 0;
+            const increment = target / 100; // 100 steps for animation
+
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    clearInterval(timer);
+                    current = target;
+                }
+                element.textContent = Math.floor(current).toLocaleString() + suffix;
+            }, 10); // Adjust speed here
+        }
+
+        // Initialize Chart.js charts
+        function initCharts() {
+            // Destroy existing charts if they exist to prevent duplicates
+            if (window.weeklyChartInstance) {
+                window.weeklyChartInstance.destroy();
+            }
+            if (window.wasteTypeChartInstance) {
+                window.wasteTypeChartInstance.destroy();
+            }
+
+            // Weekly Waste Collection Chart
+            const weeklyCtx = document.getElementById('weeklyChart').getContext('2d');
+            window.weeklyChartInstance = new Chart(weeklyCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Waste Collected (kg)',
+                        data: [150, 200, 180, 220, 250, 210, 190],
+                        borderColor: '#2E8B57',
+                        backgroundColor: 'rgba(46, 139, 87, 0.2)',
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Waste Type Distribution Chart
+            const wasteTypeCtx = document.getElementById('wasteTypeChart').getContext('2d');
+            window.wasteTypeChartInstance = new Chart(wasteTypeCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Wet Waste', 'Dry Waste', 'Hazardous Waste', 'E-Waste'],
+                    datasets: [{
+                        data: [45, 35, 10, 10],
+                        backgroundColor: ['#2E8B57', '#4ECDC4', '#FF6B6B', '#FFD700'],
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        },
+                        title: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize Leaflet Map for Tracking
+        let trackingMap = null;
+        function initTrackingMap() {
+            if (trackingMap !== null) {
+                trackingMap.remove(); // Remove existing map instance if any
+            }
+            trackingMap = L.map('trackingMap').setView([28.6139, 77.2090], 13); // Centered on Delhi
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(trackingMap);
+
+            // Sample markers for collection points
+            const collectionPoints = [
+                { lat: 28.6200, lon: 77.2150, type: 'Wet', status: 'Collected' },
+                { lat: 28.6050, lon: 77.2000, type: 'Dry', status: 'Collected' },
+                { lat: 28.6300, lon: 77.2200, type: 'E-Waste', status: 'Scheduled' },
+                { lat: 28.6100, lon: 77.1900, type: 'Hazardous', status: 'Collected' }
+            ];
+
+            collectionPoints.forEach(point => {
+                let iconColor = 'green';
+                if (point.status === 'Scheduled') iconColor = 'orange';
+                
+                L.marker([point.lat, point.lon], {
+                    icon: L.divIcon({
+                        className: 'custom-div-icon',
+                        html: `<div style="background-color:${iconColor}; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-size:1.2rem;"><i class="fas fa-trash"></i></div>`,
+                        iconSize: [30, 30],
+                        iconAnchor: [15, 30]
+                    })
+                }).addTo(trackingMap)
+                .bindPopup(`<b>${point.type} Waste</b><br>Status: ${point.status}`);
+            });
+
+            // Simulate vehicle movement
+            const vehicleMarker = L.marker([28.6139, 77.2090], {
+                icon: L.divIcon({
+                    className: 'custom-div-icon',
+                    html: `<div style="background-color:blue; width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-size:1.5rem;"><i class="fas fa-truck"></i></div>`,
+                    iconSize: [40, 40],
+                    iconAnchor: [20, 40]
+                })
+            }).addTo(trackingMap)
+            .bindPopup("<b>Collection Vehicle</b><br>Status: En Route");
+
+            let currentLat = 28.6139;
+            let currentLon = 77.2090;
+            let step = 0.0005;
+
+            setInterval(() => {
+                currentLat += (Math.random() - 0.5) * step;
+                currentLon += (Math.random() - 0.5) * step;
+                vehicleMarker.setLatLng([currentLat, currentLon]);
+                // Optionally update popup content
+                vehicleMarker.setPopupContent(`<b>Collection Vehicle</b><br>Status: Moving<br>Lat: ${currentLat.toFixed(4)}, Lon: ${currentLon.toFixed(4)}`);
+            }, 2000);
+        }
+
+        // Function for product redemption
+        function redeemProduct(productName, pointsRequired) {
+            if (!loggedInUser) {
+                showToast('Please log in to redeem products.', 'error');
+                return;
+            }
+            if (loggedInUser.points >= pointsRequired) {
+                loggedInUser.points -= pointsRequired;
+                updatePointsDisplay();
+                showToast(`Successfully redeemed ${productName} for ${pointsRequired} points!`, 'success');
+            } else {
+                showToast(`Not enough points to redeem ${productName}. You need ${pointsRequired - loggedInUser.points} more points.`, 'error');
+            }
+        }
+
+        // Function for starting training module
+        function startModule(moduleName, pointsEarned) {
+            if (!loggedInUser) {
+                showToast('Please log in to start training modules.', 'error');
+                return;
+            }
+            showToast(`Starting "${moduleName}" module...`);
+            setTimeout(() => {
+                loggedInUser.points += pointsEarned;
+                updatePointsDisplay();
+                showToast(`Completed "${moduleName}"! You earned ${pointsEarned} points!`, 'success');
+                // Update progress bar (simple simulation)
+                const progressBar = document.querySelector('#training .progress-bar');
+                let currentWidth = parseInt(progressBar.style.width) || 0;
+                progressBar.style.width = `${Math.min(100, currentWidth + 10)}%`; // Increase by 10%
+                progressBar.textContent = `${parseInt(progressBar.style.width)}% Complete`;
+            }, 3000); // Simulate module duration
+        }
+
+        // Function to update points display across the site
+        function updatePointsDisplay() {
+            if (loggedInUser) {
+                document.getElementById('userPointsDisplay').textContent = loggedInUser.points;
+                document.getElementById('shopPointsDisplay').textContent = `${loggedInUser.points} Points`;
+            }
+        }
+
+        // Function to show toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            toastMessage.textContent = message;
+
+            if (type === 'success') {
+                toast.style.backgroundColor = 'var(--gradient-eco)';
+                toast.querySelector('i').className = 'fas fa-check-circle';
+            } else if (type === 'error') {
+                toast.style.backgroundColor = 'var(--danger-red)';
+                toast.querySelector('i').className = 'fas fa-times-circle';
+            }
+
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000); // Hide after 3 seconds
+        }
+
+        // Filter products in shop
+        function filterProducts(category) {
+            const productCards = document.querySelectorAll('.product-card');
+            productCards.forEach(card => {
+                if (category === 'all' || card.dataset.category === category) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            // Update active filter button
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`.filter-btn[onclick="filterProducts('${category}')"]`).classList.add('active');
+        }
+
+        // Handle schedule form submission
+        document.getElementById('scheduleForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            if (!loggedInUser) {
+                showToast('Please log in to schedule a collection.', 'error');
+                return;
+            }
+            const wasteType = document.getElementById('wasteType').value;
+            const weight = document.getElementById('weight').value;
+            const collectionDate = document.getElementById('collectionDate').value;
+            const timeSlot = document.getElementById('timeSlot').value;
+            const segregated = document.getElementById('segregated').checked;
+
+            let pointsEarned = segregated ? 25 : 10;
+            loggedInUser.points += pointsEarned;
+            updatePointsDisplay();
+
+            showToast(`Collection for ${wasteType} (${weight}kg) scheduled on ${collectionDate} (${timeSlot}). You earned ${pointsEarned} points!`, 'success');
+            // You might want to add this to a "My Collections" list dynamically
+        });
+
+        // Initializations on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initially show the authentication section
+            showSection('auth');
+        });
+
+        // Simple calendar date selection (for demonstration)
+        function selectDate(element) {
+            document.querySelectorAll('#calendar div[style*="background"]').forEach(div => {
+                div.style.background = ''; // Clear previous selection
+            });
+            element.style.background = 'var(--light-green)'; // Highlight selected date
+            document.getElementById('collectionDate').value = `2024-12-${element.textContent.padStart(2, '0')}`; // Set date input
+        }
+
+    </script>
+</body>
+</html>
